@@ -1,0 +1,28 @@
+services:
+  gnost-relay:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config.json.example:/app/config.json
+    environment:
+      DATABASE_URL: postgres://gnost:gnost@postgres:5432/gnost
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: gnost
+      POSTGRES_PASSWORD: gnost
+      POSTGRES_DB: gnost
+    # ports:
+    #   - "5432:5432"
+    volumes:
+      - ./sql-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gnost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
